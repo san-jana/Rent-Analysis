@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np 
 import magicbricks
-import requests
 
 rental_prices = pd.DataFrame(columns = ['bhk','sqft_rent', 'rent', 'locality', 'city'])
 
@@ -14,17 +13,8 @@ def check_json(response):
             rental_prices.loc[len(rental_prices)] = [data['bedroomD'].split()[-1], data['sqFtPrice'], data['price'],
                                                      data['lmtDName'].split(',')[-1].strip(), data['ctName'].strip()]
             
-            
-        # print({'bhk': response.json()['resultList'][0]['bedroomD'],
-        #        'sqft_price': response.json()['resultList'][0]['sqFtPrice'],
-        #        'rent': response.json()['resultList'][0]['price'], 
-        #        'locality': response.json()['resultList'][0]['lmtDName'],
-        #        'city': response.json()['resultList'][0]['ctName']})
-        
-
-
-cities = ['Noida']
-# #  'Indore', =Noida, gurgaon, Thane
+       
+cities = ['Noida', 'Mumbai', 'Pune', 'New Delhi', 'Kolkata', 'Ahmedabad', 'Jaipur']
 
 for city in cities:
     playwright = sync_playwright().start()
@@ -48,9 +38,6 @@ for city in cities:
         
         page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         print("scrolled")
-        # page.keyboard.press('End')
-        # expect(locator).to_be_visible(timeout = 15000)
-        # expect(locator).not_to_be_visible(timeout = 15000) 
         page.wait_for_load_state('domcontentloaded')
         page.wait_for_timeout(2000)      
         page.on('response', lambda response : check_json(response))
@@ -60,18 +47,7 @@ for city in cities:
     browser.close()
     playwright.stop()
 
-print("Information 1\n", rental_prices.info())
-print("Null Values =\n ", rental_prices.isnull().sum())
-
-print(rental_prices['rent'].value_counts())
-print(rental_prices['bhk'].value_counts())
-print(rental_prices['locality'].value_counts())
-
-# rental_prices['rent'] = rental_prices['rent'].astype('int')
 rental_prices['bhk'] = rental_prices['bhk'].astype('int')
-rental_prices['rent'] = rental_prices['rent'].astype('int')
-# rental_prices['sqft_rent'] = rental_prices['sqft_rent'].astype('float')
-
-print("Information 2\n", rental_prices.info())
+rental_prices['rent'] = rental_prices['rent'].astype('int')  
 
 rental_prices.to_csv("C:\\Users\\Somu\\Desktop\\CDAC\\resources\\noida_data.csv", index = False)
